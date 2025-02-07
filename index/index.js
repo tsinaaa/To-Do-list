@@ -1,4 +1,4 @@
-let list = []
+let list = JSON.parse(localStorage.getItem("tasks"))
 let input = document.getElementById("input")
 const addBtn = document.getElementById("add-btn")
 const toDoList = document.getElementById("todo-list")
@@ -11,18 +11,40 @@ let taskAddedNum = 0
 let taskCompletedNum = 0
 let status = ["🎯 Outstanding", "💪 Excellent", "👍 Good", 
     "🙂 Satisfactory", "😕 Needs Improvement", "❌ Poor"]
+localStorage.setItem("tasks", JSON.stringify(list))
+list = JSON.parse(localStorage.getItem("tasks"))
+console.log(list)
+display()
+
+function display() {
+    list = JSON.parse(localStorage.getItem("tasks"))
+    for(let i = 0; i < list.length; i++) {
+        toDoList.innerHTML += `
+           <li>
+               <button class="check-btn check-box"></button>
+               <p class="list">${list[i]}</p>
+           </li>
+   `
+   }
+   toDoList.innerHTML += `<li>
+               <button class="check-btn check-box"></button>
+               <input type="text" id="input">
+           </li>`
+}
 
 addBtn.addEventListener("click", function() {
     taskAddedNum++
     taskAdded.textContent = taskAddedNum
     input = document.getElementById("input")
     render()
+    console.log("clicked")
 })
 
 function render() {
     let toDo = ""
+    list = JSON.parse(localStorage.getItem("tasks"))
     list[list.length] = input.value
-    console.log(input.value)
+    localStorage.setItem("tasks", JSON.stringify(list))
     for(let i = 0; i < list.length; i++) {
          toDo += `
             <li>
@@ -37,15 +59,18 @@ function render() {
             </li>`
     toDoList.innerHTML = toDo
 }
- 
+
 clearBtn.addEventListener("click", function() {
     toDoList.innerHTML = `<button class="check-box"></button><input type="text" id="input">`
+    localStorage.clear()
 })
 
 document.addEventListener("click", function(event) {
     if (event.target.classList.contains("check-btn")) {
-        let taskItem = event.target.parentElement; // Get the <li> element
-        taskItem.remove(); // Remove the task
+        let taskItem = event.target.parentElement;
+        taskItem.remove();
+        let taskContent = taskItem.textContent.trim()
+        list = list.filter(task => task != taskContent)
         taskCompletedNum++
         taskCompleted.textContent = taskCompletedNum
         const r = taskCompletedNum / taskAddedNum
@@ -67,6 +92,6 @@ document.addEventListener("click", function(event) {
         else if(r <= 0.2) {
             comStatus.textContent = status[5]
         }
+        localStorage.setItem("tasks", JSON.stringify(list))
     }
 });
-
